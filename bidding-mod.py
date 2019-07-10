@@ -1,71 +1,65 @@
 """
-OTBidding.py implements an employee rotation and PCO work assignment.
-Data source is from Trapeze. Input files must be tab-delimited text files.
+bidding-mod.py implements an employee rotation and PCO work assignment.
+Choices and available work data is sourced from Trapeze. Employee names are arbitrarily generated.
+Input files must be tab-delimited text files.
 
-Created by Audrey Kan, July 2019
+Created by Audrey Kan, June-August 2019
 """
 #-----------------------------------------------------------------------#
 class Employee():
   # Stores info about a single employee: seniority, badge, and name
-  def __init__(self, b, s, sur='', n=''):
-    self._badge = b
-    self._sen = s
+  def __init__(self, badge, sen, sur='', name=''):
+    self._badgeID = badge
+    self._seniority = sen
     self._surname = sur
-    self._name = n
+    self._firstName = name
   
   # Prints BADGE  SURNAME, FIRST INITIAL
   def __str__(self):
-    return str(self._badge) + '\t' +self._surname + ', ' + self._name[:1] + '.'
+    return str(self._badgeID) + '\t' +self._surname + ', ' + self._firstName[:1] + '.'
 #-----------------------------------------------------------------------#
 class Work():
   # Stores info about a single event: date, time, name (code), and number of employees needed
-  def __init__(self, dt, name, c, s, e, comp, n):
-    self._date = dt
-    self._name = name
-    self._code = c
-    self._start = s
-    self._end = e
-    self._comp = comp
-    self._numEmp = n
+  def __init__(self, date, name, code, start, end, comp, num):
+    self._date = date
+    self._workName = name
+    self._workCode = code
+    self._startTime = start
+    self._endTime = end
+    self._isComp = comp
+    self._numEmpNeeded = num
 
   # Decrements total employees needed when an employee is assigned
   def assignEmp(self):
-    self._numEmp -= 1
+    self._numEmpNeeded -= 1
 
   # Prints NAME (CODE)  START-END COMP
   def __str__(self):
-    if self._code != '': codeStr = ' (' + self._code.upper() + ')'
+    if self._workCode != '': codeStr = ' (' + self._workCode.upper() + ')'
     else: codeStr = ''
-    if self._comp: compStr = ' OR COMP'
+    if self._isComp: compStr = ' OR COMP'
     else: compStr = ' HRS'
-    if self._end == '':
+    if self._endTime == '':
       endStr = ' UNTIL COMP'
       compStr = ''
-    else: endStr = '-' + self._end
-    return self._name.upper() + codeStr + '\n' + self._start + endStr + compStr + '\n'
+    else: endStr = '-' + self._endTime
+    return self._workName.upper() + codeStr + '\n' + self._startTime + endStr + compStr + '\n'
 #-----------------------------------------------------------------------#
 class Assignment():
   # Stores info about an assignment: employee and work
-  def __init__(self, e, w):
-    self._emp = e
-    self._work = w
+  def __init__(self, emp, work):
+    self._employee = emp
+    self._work = work
 
   # Prints SURNAME, FIRST INITIAL and NAME (CODE)  START-END COMP
   def __str__(self):
-    return self._emp.__str__() + '\n' + self._work.__str__()
+    return self._employee.__str__() + '\n' + self._work.__str__()
 
 #-----------------------------------------------------------------------#
-def rotate(n):
-  global rot
-  return rot[n:] + rot[:n]
-
-def mergeSort(r, s):
-  return zip(r, s)
-
-def empRotation(s, n):
-  global rot
-  rot = rot[sen.index(n):] + rot[:sen.index(n)]
-  return mergeSort(rot, s)
+def rotateEmployees(senList, nextEmp):
+  global rotationList
+  rotationList = rotationList[senList.index(nextEmp):] + rotationList[:senList.index(nextEmp)]
+  return zip(rotationList, senList)
 
 #-----------------------------------------------------------------------#
 #                               MAIN PROGRAM
@@ -73,47 +67,49 @@ def empRotation(s, n):
 
 import csv
 
-emp = {} #Holds all refs of Employee objects
-sen = []
-otw = {} #Holds all refs of Work objects
-choices = [] #Holds all refs to Employee preferences
-assignments = [] #Holds all refs to the final employee/work assignment
+employees = {} # Holds all refs of Employee objects
+availableWork = {} # Holds all refs of Work objects
+employeeChoices = [] # Holds all refs to Employee preferences
+seniorityList = []
+finalAssignments = [] # Holds all refs to the final employee/work assignment
 
+#----------------------PROCESS INPUT TXT TILES--------------------------#
 empFile = 'pco_emp.txt'
-otwFile = 'pco_otwork.txt'
+workFile = 'pco_otwork.txt'
 choiceFile = 'pco_choices.txt'
 
-with open(empFile, 'r') as empStr:
-  emp_reader = csv.reader(empStr, delimiter='\t')
-  for line in emp_reader:
+with open(empFile, 'r') as employeeStr:
+  employee_reader = csv.reader(employeeStr, delimiter='\t')
+  for line in employee_reader:
     ref = int(line[0])
-    emp[ref] = Employee(line[3], ref, line[1], line[2])
-    sen += [ref]
+    employees[ref] = Employee(line[3], ref, line[1], line[2])
+    seniorityList += [ref]
     
-with open(otwFile, 'r') as otwStr:
-  otw_reader = csv.reader(otwStr, delimiter='\t')
-  for line in otw_reader:
+with open(workFile, 'r') as workStr:
+  work_reader = csv.reader(workStr, delimiter='\t')
+  for line in work_reader:
     ref = (line[0], line[2])
     if line[5].upper() == 'YES': comp = True
     else: comp = False
-    otw[ref] = Work(line[0], line[1], line[2], line[3], line[4], comp, int(line[6]))
+    availableWork[ref] = Work(line[0], line[1], line[2], line[3], line[4], comp, int(line[6]))
 
 with open(choiceFile, 'r') as choicesStr:
-  w = list(otw.keys())
+  availableWorkKeys = list(availableWork.keys())
   choice_reader = csv.reader(choicesStr, delimiter='\t')
   for line in choice_reader:
-    c = []
-    for count, x in enumerate(line[1:]):
-      if x!='':
-        c += [(int(x),w[count])]
-    if c != []: 
-      c = sorted(c, key=lambda x:x[0])
-      choices += [(int(line[0]), c)]
+    choiceList = []
+    for count, preference in enumerate(line[1:]):
+      # For all employee preferences, add to the employee's choice list 
+      if preference != '': choiceList += [(int(preference), availableWorkKeys[count])]
+    if choiceList != []: 
+      choiceList = sorted(choiceList, key=lambda pref:pref[0])
+      employeeChoices += [(int(line[0]), choiceList)]
 
-nextEmp = input('Enter SEN # of next first employee: ')
-rot = range(1, len(sen) + 1)
-rotatedList = empRotation(sen, nextEmp)
-print(rotatedList)
+#------------------------EMPLOYEE ROTATION------------------------------#
+nextEmp = input('Enter SEN # to begin next rotation: ')
+rotationList = range(1, len(seniorityList) + 1)
+seniorityRotationList = rotateEmployees(seniorityList, nextEmp)
+print(seniorityRotationList)
 
 # First iteration through assignments
 for choice in choices:

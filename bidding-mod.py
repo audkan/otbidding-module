@@ -1,13 +1,14 @@
 """
 bidding-mod.py implements an employee rotation and PCO work assignment.
-Choices and available work data is sourced from Trapeze. Employee names are arbitrarily generated.
+Choices and available work data is sourced from Trapeze. 
+Employee names are arbitrarily generated.
 Input files must be tab-delimited text files.
 
 Created by Audrey Kan, June-August 2019
 """
 #-----------------------------------------------------------------------#
 class Employee():
-  # Stores info about a single employee: seniority, badge, and name
+  # Stores info about a single employee
   def __init__(self, badge, sen, sur='', name=''):
     self._badgeID = badge
     self._seniority = sen
@@ -15,11 +16,16 @@ class Employee():
     self._firstName = name
   
   # Prints BADGE  SURNAME, FIRST INITIAL
+  def printEmployee(self):
+    return str(self._badgeID) + '\t' +self._surname + ', ' \
+      + self._firstName[:1] + '.'
+  
   def __str__(self):
-    return str(self._badgeID) + '\t' +self._surname + ', ' + self._firstName[:1] + '.'
+    return self._seniority + '\t' + str(self._badgeID) + '\t' 
+      + self._surname + '\t' + self._firstName[:1]
 #-----------------------------------------------------------------------#
 class Work():
-  # Stores info about a single event: date, time, name (code), and number of employees needed
+  # Stores info about a single work event
   def __init__(self, date, name, code, start, end, comp, num):
     self._date = date
     self._workName = name
@@ -28,13 +34,9 @@ class Work():
     self._endTime = end
     self._isComp = comp
     self._numEmpNeeded = num
-
-  # Decrements total employees needed when an employee is assigned
-  def assignEmp(self):
-    self._numEmpNeeded -= 1
-
+    
   # Prints NAME (CODE)  START-END COMP
-  def __str__(self):
+  def printWork(self):
     if self._workCode != '': codeStr = ' (' + self._workCode.upper() + ')'
     else: codeStr = ''
     if self._isComp: compStr = ' OR COMP'
@@ -43,38 +45,63 @@ class Work():
       endStr = ' UNTIL COMP'
       compStr = ''
     else: endStr = '-' + self._endTime
-    return self._workName.upper() + codeStr + '\n' + self._startTime + endStr + compStr + '\n'
+    return self._workName.upper() + ' ' + codeStr + '\n' + self._startTime \
+      + '-' + endStr + compStr
+  
+  def __str__(self):
+    return self._date + '\t' + self._workName.upper() + '\t' 
+      + self._workCode + '\t' + self._startTime + '\t' 
+      + self._endTime + '\t' + str(self._isComp)
 #-----------------------------------------------------------------------#
 class Assignment():
   # Stores info about an assignment: employee and work
   def __init__(self, emp, work):
     self._employee = emp
     self._work = work
-
-  # Prints SURNAME, FIRST INITIAL and NAME (CODE)  START-END COMP
+    
   def __str__(self):
-    return self._employee.__str__() + '\n' + self._work.__str__()
+    return self._employee.__str__() + '\t' + self._work.__str__()
 
 #-----------------------------------------------------------------------#
-def rotateEmployees(senList, nextEmp):
+class SSD():
+  # Stores variables for global use
+  def __init__(self):
+    employees = {} # Holds all refs of Employee objects
+    openWork = {} # Holds all refs of Work objects
+    employeeBids = [] # Holds all refs to Employee preferences
+    seniorityList = []
+    assignments = [] # Holds all refs to employee/work assignment
+    
+#-----------------------------------------------------------------------#
+def rotateEmployees(n):
   global rotationList
-  rotationList = rotationList[senList.index(nextEmp):] + rotationList[:senList.index(nextEmp)]
-  return zip(rotationList, senList)
+  rotationList = rotationList[SSD.senList.index(n):] \
+    + rotationList[:SSD.senList.index(n)]
+  return zip(rotationList, SSD.senList)
 
+def employeesToAssign():
+  sum = 0
+  for i in SSD.openWork: sum += SSD.openWork[i]._numEmpNeeded
+  return sum
+
+def assignEmployeesToWork():
+  for choice in SSD.employeeBids:
+    for bid in choice[1]:
+      if SSD.openWork[bid[1]]._numEmpNeeded > 0 and not(any(
+        (obj._employee._seniority, (obj._work._date, obj._work._workCode)) 
+        == (choice[0], bid[1]) for obj in SSD.assignments)):
+        openWork[bid[1]]._numEmpNeeded -= 1
+        SSD.assignments += [Assignment
+                            (employees[choice[0]], openWork[bid[1]])]
+        break
 #-----------------------------------------------------------------------#
 #                               MAIN PROGRAM
 #-----------------------------------------------------------------------#
 
 import csv
 
-employees = {} # Holds all refs of Employee objects
-availableWork = {} # Holds all refs of Work objects
-employeeChoices = [] # Holds all refs to Employee preferences
-seniorityList = []
-finalAssignments = [] # Holds all refs to the final employee/work assignment
-
 #----------------------PROCESS INPUT TXT TILES--------------------------#
-empFile = 'pco_emp.txt'
+empFile = 'pco_emp_test.txt'
 workFile = 'pco_otwork.txt'
 choiceFile = 'pco_choices.txt'
 
@@ -82,8 +109,8 @@ with open(empFile, 'r') as employeeStr:
   employee_reader = csv.reader(employeeStr, delimiter='\t')
   for line in employee_reader:
     ref = int(line[0])
-    employees[ref] = Employee(line[3], ref, line[1], line[2])
-    seniorityList += [ref]
+    SSD.employees[ref] = Employee(line[3], ref, line[1], line[2])
+    SSD.seniorityList += [ref]
     
 with open(workFile, 'r') as workStr:
   work_reader = csv.reader(workStr, delimiter='\t')
@@ -91,60 +118,53 @@ with open(workFile, 'r') as workStr:
     ref = (line[0], line[2])
     if line[5].upper() == 'YES': comp = True
     else: comp = False
-    availableWork[ref] = Work(line[0], line[1], line[2], line[3], line[4], comp, int(line[6]))
+    SSD.openWork[ref] = Work(line[0], line[1], line[2], line[3], \
+                              line[4], comp, int(line[6]))
 
 with open(choiceFile, 'r') as choicesStr:
-  availableWorkKeys = list(availableWork.keys())
+  openWorkKeys = list(SSD.openWork.keys())
   choice_reader = csv.reader(choicesStr, delimiter='\t')
   for line in choice_reader:
     choiceList = []
     for count, preference in enumerate(line[1:]):
       # For all employee preferences, add to the employee's choice list 
-      if preference != '': choiceList += [(int(preference), availableWorkKeys[count])]
+      if preference != '': choiceList 
+        += [(int(preference), openWorkKeys[count])]
     if choiceList != []: 
-      choiceList = sorted(choiceList, key=lambda pref:pref[0])
-      employeeChoices += [(int(line[0]), choiceList)]
+      SSD.employeeBids += [
+        (int(line[0]), sorted(choiceList, key=lambda pref:pref[0]))]
 
 #------------------------EMPLOYEE ROTATION------------------------------#
 nextEmp = input('Enter SEN # to begin next rotation: ')
-rotationList = range(1, len(seniorityList) + 1)
-seniorityRotationList = rotateEmployees(seniorityList, nextEmp)
+rotationList = range(1, len(SSD.seniorityList) + 1)
+seniorityRotationList = rotateEmployees(nextEmp)
 print(seniorityRotationList)
 
-# First iteration through assignments
-for choice in choices:
-  for bid in choice[1]:
-    if otw[bid[1]]._numEmp > 0:
-      otw[bid[1]].assignEmp()
-      assignments += [Assignment(emp[choice[0]], otw[bid[1]])]
-      break
+# How to integrate employee rotation with iterations? 
 
-# Second iteration through assignments
-for choice in choices:
-  for bid in choice[1]:
-    if otw[bid[1]]._numEmp > 0 and not(any((obj._emp._sen, (obj._work._date, obj._work._code)) == (choice[0], bid[1]) for obj in assignments)):
-      otw[bid[1]].assignEmp()
-      assignments += [Assignment(emp[choice[0]], otw[bid[1]])]
-      break
+#-------------------------ASSIGNMENT ITERATIONS-------------------------#
+assignEmployeesToWork() # First iteration through assignment
+assignEmployeesToWork() # Second iteration through assignment
 
-# If not all otw is filled
+#if employeesToAssign() != 0:
+# find index of work not filled
 # start at the end of the list
+# if (sen, (date,work) is not in assignments
 # assign inverse work 
 
-# rotate employee by picking employee sen# as 1st. 
-# Generate rotation list in order based on given employee seniority #
-
 # Print formatted assignment for checking 
-
-# Write to file for final copy
-
-"""
+ employees = {} # Holds all refs of Employee objects
+    openWork = {} # Holds all refs of Work objects
+    employeeBids = [] # Holds all refs to Employee preferences
+    seniorityList = []
+    assignments = [] # Holds all refs to employee/work assignment
+    
 i = 0
 while i != len(assignments):
   print(assignments[i].__str__())
   i += 1
 
-for i in otw:
-  print(otw[i]._numEmp)
-
-"""
+with open("FinalAssignments.txt", "w") as out: 
+  for i in SSD.assignments:
+    out.write(assignments[i].__str__())
+    

@@ -90,6 +90,7 @@ empFile = 'pco_emp_test.txt'
 workFile = 'pco_otwork.txt'
 choiceFile = 'pco_choices.txt'
 
+#Initializes employees
 with open(empFile, 'r') as employeeStr:
   employee_reader = csv.reader(employeeStr, delimiter='\t')
   for line in employee_reader:
@@ -101,6 +102,9 @@ nextEmp = input('Enter SEN # to begin next rotation: ')
 newEmployeeRotation = rotateEmployees(seniorityList, list(range(1, len(seniorityList) + 1)), nextEmp)
 employees = OrderedDict((key, employees[key]) for key in newEmployeeRotation)
 
+#What if Debbie wants to rotate again?
+
+#Initializes openWork
 with open(workFile, 'r') as workStr:
   work_reader = csv.reader(workStr, delimiter='\t')
   for line in work_reader:
@@ -109,6 +113,7 @@ with open(workFile, 'r') as workStr:
     else: comp = False
     openWork[ref] = Work(line[0], line[1], line[2], line[3], line[4], comp, int(line[6]))
 
+#Initializes employeeBids
 with open(choiceFile, 'r') as choicesStr:
   workKeys = list(openWork.keys())
   choice_reader = csv.reader(choicesStr, delimiter='\t')
@@ -121,6 +126,11 @@ with open(choiceFile, 'r') as choicesStr:
     if choiceList != []: 
       choiceList = sorted(choiceList, key=lambda x:x[0])
       employeeBids += [(int(line[0]), choiceList)]
+
+tempBidList = []
+for pos in newEmployeeRotation:
+  tempBidList += [(pos, bid[1]) for bid in employeeBids if bid[0] == pos]
+employeeBids = tempBidList
 
 #-------------------------ASSIGNMENT ITERATIONS-------------------------#
 # First iteration through assignment
@@ -136,4 +146,3 @@ assignEmployeesToWork(employeeBids, openWork)
 
 with open('FinalAssignments.txt', 'w') as out: 
   for index, value in enumerate(assignments): out.write(assignments[index].__str__()+'\n')
-    

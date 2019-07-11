@@ -102,8 +102,6 @@ nextEmp = input('Enter SEN # to begin next rotation: ')
 newEmployeeRotation = rotateEmployees(seniorityList, list(range(1, len(seniorityList) + 1)), nextEmp)
 employees = OrderedDict((key, employees[key]) for key in newEmployeeRotation)
 
-#What if Debbie wants to rotate again?
-
 #Initializes openWork
 with open(workFile, 'r') as workStr:
   work_reader = csv.reader(workStr, delimiter='\t')
@@ -133,16 +131,11 @@ for pos in newEmployeeRotation:
 employeeBids = tempBidList
 
 #-------------------------ASSIGNMENT ITERATIONS-------------------------#
-# First iteration through assignment
+# First Assignments
 assignEmployeesToWork(employeeBids, openWork)
-# Second iteration through assignment
-assignEmployeesToWork(employeeBids, openWork)
+# Second Assignments
+assignEmployeesToWork(list(reversed(employeeBids)), openWork)
 
-#if employeesToAssign() != 0:
-# find index of work not filled
-# start at the end of the list
-# if (sen, (date,work) is not in assignments
-# assign inverse work 
-
+#What are Debbie's contraints on INV assignment?
 with open('FinalAssignments.txt', 'w') as out: 
   for index, value in enumerate(assignments): out.write(assignments[index].__str__()+'\n')

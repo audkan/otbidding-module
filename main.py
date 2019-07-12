@@ -5,6 +5,9 @@ Employee names are arbitrarily generated.
 Input files must be tab-delimited text files.
 
 Created by Audrey Kan, June-August 2019
+
+RESOURCE:
+https://docs.python-guide.org/scenarios/scrape/
 """
 #-----------------------------------------------------------------------#
 class Employee():
@@ -15,9 +18,8 @@ class Employee():
     self._surname = sur
     self._firstName = name
   
-  # Prints BADGE  SURNAME, FIRST INITIAL
   def printEmployee(self):
-    return str(self._seniority) + '\t' +self._surname + ', ' + self._firstName[:1] + '.' + ' ('+ str(self._badgeID) + ')' 
+    return self._surname + ', ' + self._firstName[:1]
   
   def __str__(self):
     return str(self._seniority) + '\t' + str(self._badgeID) + '\t' + self._surname + '\t' + self._firstName
@@ -73,6 +75,15 @@ def assignEmployeesToWork(employeeBids, openWork):
       if openWork[bid[1]]._numEmpNeeded > 0 and not(any((obj._employee._seniority, (obj._work._date, obj._work._workCode)) == (choice[0], bid[1]) for obj in assignments)):
         openWork[bid[1]]._numEmpNeeded -= 1
         assignments += [Assignment(employees[choice[0]], openWork[bid[1]])]
+        break
+
+def assignInverse(seniorityList, openWork):
+  global assignments
+  for emp in seniorityList:
+    for choice in openWork:
+      if openWork[choice]._numEmpNeeded > 0 and not(any((obj._employee._seniority, (obj._work._date, obj._work._workCode)) == (emp, (openWork[choice]._date, openWork[choice]._workCode)) for obj in assignments)):
+        openWork[choice]._numEmpNeeded -= 1
+        assignments += [Assignment(employees[emp], openWork[(openWork[choice]._date, openWork[choice]._workCode)])]
         break
 #-----------------------------------------------------------------------#
 #                               MAIN PROGRAM
@@ -135,7 +146,9 @@ employeeBids = tempBidList
 assignEmployeesToWork(employeeBids, openWork)
 # Second Assignments
 assignEmployeesToWork(list(reversed(employeeBids)), openWork)
-
+assignInverse(list(reversed(seniorityList)), openWork)
 #What are Debbie's contraints on INV assignment?
+
 with open('FinalAssignments.txt', 'w') as out: 
   for index, value in enumerate(assignments): out.write(assignments[index].__str__()+'\n')
+

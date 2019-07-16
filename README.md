@@ -15,3 +15,5 @@ BUGS
 - Debbie's assignments are missing 12 PCOs to reach 50 PCO requirement on 4/20 for 420
 - 299 should be INV to 4/20 420 but is given 4/21 CP by Python script.
 - 23 is given an assignment by Python script, but no Debbie.
+- Pass # signifier
+- How to keep track of START? 

@@ -1,8 +1,11 @@
 """
-main.py implements an employee rotation and PCO work assignment.
-Choices and available work data can be sourced from Trapeze. 
-Employee names are arbitrarily generated.
+main.py is a Python module that implements an employee rotation and PCO work bid assignment.
+Employee seniotity, bid preferences, and available work data can be sourced from Trapeze. 
+Employee names are arbitrarily generated for test data.
+
 Input files must be tab-delimited text files.
+Output file (as a tab-delimited text file) may be opened and saved as an .xlsx or .csv file. 
+Output file may be imported into Trapeze. 
 
 Created by Audrey Kan, June-July 2019
 """
@@ -176,12 +179,9 @@ for i in openWork:
 with open('FinalAssignments.txt', 'w') as out: 
   # Write column headers to output file
   out.write('SENIORITY\tBADGE\tSURNAME\tFIRST\tDATE\tWATCH\tCODE\tSTART\tEND\tCOMP\n') 
-  # First pass through assignments
-  assignEmployeesToWork(employeeBids, openWork)
-  # Second pass through assignments
-  assignEmployeesToWork(list(reversed(employeeBids)), openWork)
-  # Inverse pass through assignments (should fill all remaining work)
-  assignInverse(list(reversed(seniorityList)), openWork)
+  assignEmployeesToWork(employeeBids, openWork) # First pass through assignments
+  assignEmployeesToWork(list(reversed(employeeBids)), openWork) # Second pass through assignments
+  assignInverse(list(reversed(seniorityList)), openWork) # Inverse pass through assignments (to fill all remaining work)
   for index, value in enumerate(assignments): 
     out.write(assignments[index].__str__()+'\n')
 out.close()

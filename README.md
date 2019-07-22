@@ -17,3 +17,11 @@ BUGS
 - 23 is given an assignment by Python script, but no Debbie.
 - Pass # signifier
 - How to keep track of START? 
+
+Rosa Suggestions
+--------------------------
+- add existing work file (days off, start times, work days) - aurora has employeedayoffmirror table for days off, fromdate, todate, weektemplate
+
+Rosa Todo's 
+--------------------------
+- add database module

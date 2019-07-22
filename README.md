@@ -25,3 +25,7 @@ Rosa Suggestions
 Rosa Todo's 
 --------------------------
 - add database module
+
+References
+--------------------------
+https://github.com/MilaBot/Quick-SQLite

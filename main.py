@@ -74,17 +74,30 @@ def rotateEmployees(senList, rotList, n):
     newEmployeeRot += [senRot[0]]
   return newEmployeeRot
 
+def overlappingWork(timeInterval, date, emp):
+  global assignments
+  global employees
+  existingWork = [obj for obj in assignments if obj._employee == employees[emp]]
+  for idx, val in enumerate(existingWork):
+    lowerMax = max(int(timeInterval[0]), int(val._work._startTime))
+    upperMin = min(int(timeInterval[1]), int(val._work._endTime))
+    if not(len(range(lowerMax, upperMin)) < 245) and date == val._work._date:
+      return False
+  return True
+
 # Regular assignment iterations through rotated employee list 
 def assignEmployeesToWork(employeeBids, openWork):
   global assignments # Read and write to variable in main function
   for choice in employeeBids:
     for bid in choice[1]:
-      # If there is work to be filled and Employee-Work combo does not exist in assignments yet
+      # If there is work to be filled, no 2.5hr work overlap, and Employee-Work combo does not exist in assignments yet
       if openWork[bid[1]]._numEmpNeeded > 0 and not(any((obj._employee._seniority, (obj._work._date, obj._work._workCode)) == (choice[0], bid[1]) for obj in assignments)):
-        # Subtract from work count and assign employee to work
-        openWork[bid[1]]._numEmpNeeded -= 1
-        assignments += [Assignment(employees[choice[0]], openWork[bid[1]])]
-        break
+        if overlappingWork([openWork[bid[1]]._startTime, openWork[bid[1]]._endTime], openWork[bid[1]]._date, choice[0]):
+          #Check against existing work 
+          # Subtract from work count and assign employee to work
+          openWork[bid[1]]._numEmpNeeded -= 1
+          assignments += [Assignment(employees[choice[0]], openWork[bid[1]])]
+          break
 
 # Inverse assignment iteration through reversed seniority list 
 def assignInverse(seniorityList, openWork):
@@ -111,14 +124,25 @@ seniorityList = [] # Placeholder, tracks rotation
 assignments = [] # Holds Employee-Work assignment
 
 #----------------------PROCESS INPUT TXT TILES--------------------------#
-empFile = 'pco_emp.txt'
-workFile = 'pco_otwork.txt'
-choiceFile = 'pco_choices.txt'
+'''
+empFile = raw_input('Enter EMPLOYEES text file name: ')
+workFile = raw_input('Enter WORK text file name: ')
+choiceFile = raw_input('Enter BIDS text file name: ')
+
+empFile = 'PCO_emp0402.txt'
+workFile = 'PCO_work0402.txt'
+choiceFile = 'PCO_bid0402.txt'
+'''
+empFile = 'SUP_emp0709.txt'
+workFile = 'SUP_work0709.txt'
+choiceFile = 'SUP_bid0709.txt'
 
 # Initializes Employee objects
 with open(empFile, 'r') as employeeStr:
   employee_reader = csv.reader(employeeStr, delimiter='\t')
   for line in employee_reader:
+    if line[0] == '':
+      break
     # Set SENIORITY as the key
     ref = int(line[0])
     # Set (BADGE, SENIORITY, SURNAME, FIRST) tuple as the value
@@ -137,6 +161,8 @@ employees = OrderedDict((key, employees[key]) for key in newEmployeeRotation)
 with open(workFile, 'r') as workStr:
   work_reader = csv.reader(workStr, delimiter='\t')
   for line in work_reader:
+    if line[0] == '':
+      break
     # Set (DATE, CODE) tuple as the key
     ref = (line[0], line[2])
     if line[5].upper() == 'YES': comp = True
@@ -150,6 +176,8 @@ with open(choiceFile, 'r') as choicesStr:
   workKeys = list(openWork.keys())
   choice_reader = csv.reader(choicesStr, delimiter='\t')
   for line in choice_reader:
+    if line[0] == '':
+      break
     choiceList = []
     for count, preference in enumerate(line[1:]):
       # For all declared preferences, add to employee's choice list 
@@ -168,19 +196,11 @@ for pos in newEmployeeRotation:
 employeeBids = tempBidList
 
 #-------------------------ASSIGNMENT ITERATIONS-------------------------#
-# DEBUG: Prints work where PCOs are still needed to fulfill available watches
-# Copy and paste where necessary
-"""
-for i in openWork:
-  if openWork[i]._numEmpNeeded != 0:
-    print(openWork[i].workDetails())
-"""
-
 with open('FinalAssignments.txt', 'w') as out: 
   # Write column headers to output file
-  out.write('SENIORITY\tBADGE\tSURNAME\tFIRST\tDATE\tWATCH\tCODE\tSTART\tEND\tCOMP\n') 
-  assignEmployeesToWork(employeeBids, openWork) # First pass through assignments
-  assignEmployeesToWork(list(reversed(employeeBids)), openWork) # Second pass through assignments
+  out.write('SENIORITY\tBADGE\tSURNAME\tFIRST\tDATE\tWATCH\tCODE\tSTART\tEND\tCOMP\n')
+  for x in range(5):
+    assignEmployeesToWork(employeeBids, openWork) # Five passes through assignments
   assignInverse(list(reversed(seniorityList)), openWork) # Inverse pass through assignments (to fill all remaining work)
   for index, value in enumerate(assignments): 
     out.write(assignments[index].__str__()+'\n')

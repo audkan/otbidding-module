@@ -1,12 +1,15 @@
-SSDE OVERTIME BID AND ASSIGNMENT MODULE
+Sustainable Streets Division - Enforcement (SSDE) 
+
+Overtime Bids and Assignment
+
 ==========================
 This is a simple Python (2.7.16) application intended to provide SSDE business 
-automation opportunities for assigning PCO/SUP overtime work.
+automation opportunities for assigning Parking Control Officers (PCO) and SSDE Supervisors (SUP) overtime work.
 
 FEATURES
 --------------------------
 MAIN.PY
-calls init.py and func.oy and runs the main functionality of the application. 
+calls init.py and func.py and runs the main functionality of the application. 
 Generates two output files: 1) OT assignments in the order of assignment, 
 showing all details within a row and 2) OT assignments grouped by event date and
 name, showing only employee names assigned to each work
@@ -57,13 +60,13 @@ Running main.py (with value and range error handling):
 Raw output will appear as follows:
 
 	SENIORITY BADGE SURNAME FIRST DATE WATCH CODE START END COMP
-	199 80 DOE JOHN 4/20/2019 SAMPLE EVENT SE 1800 2200	
-	205 213 DOE JUSTIN 4/20/2019 SAMPLE EVENT SE 900 1800 COMP
-	209 42 DOE JAIME (J.R.) 4/21/2019 SAMPLE EVENT SE 730 1930 COMP
-	216 224 DOE HUBERT 4/20/2019 SAMPLE EVENT SE 900 1800 COMP
-	221 65 DOE MIGUEL 4/20/2019 SAMPLE EVENT SE 900 1800 COMP
-	234 286 DOE JONATHAN 4/20/2019 SAMPLE EVENT SE 1400 2200 COMP
-	237 105 DOE TODD 4/21/2019 SAMPLE EVENT SE 730 1930 COMP
+	199 80 ROSE JOHN 4/20/2019 SAMPLE EVENT SE 1800 2200	
+	205 213 BAUER JUSTIN 4/20/2019 SAMPLE EVENT SE 900 1800 COMP
+	209 42 LIN JAIME (J.R.) 4/21/2019 SAMPLE EVENT SE 730 1930 COMP
+	216 224 RODRIGUEZ HUBERT 4/20/2019 SAMPLE EVENT SE 900 1800 COMP
+	221 65 MCCARTHY MIGUEL 4/20/2019 SAMPLE EVENT SE 900 1800 COMP
+	234 286 WONG JONATHAN 4/20/2019 SAMPLE EVENT SE 1400 2200 COMP
+	237 105 GARZA TODD 4/21/2019 SAMPLE EVENT SE 730 1930 COMP
 
 Formatted output will appear as follows:
 
@@ -71,10 +74,10 @@ Formatted output will appear as follows:
 	SATURDAY 4/20/2019
 	1400-2200 OR COMP
 	-----------------------
-	DOE, V.
-	DOE, N.
-	DOE, M.
-	DOE, J.
+	ORTIZ, V.
+	OLSON, N.
+	BLAIR, M.
+	ROSE, J.
 
 	SAMPLE EVENT
 	SATURDAY 4/20/2019
@@ -86,18 +89,18 @@ Formatted output will appear as follows:
 	SUNDAY 4/21/2019
 	730-1930 OR COMP
 	-----------------------
-	DOE, T.
-	DOE, J.
+	MEYER, T.
+	CAMILLO, J.
 
 	SAMPLE EVENT
 	SUNDAY 4/21/2019
 	1000-1830 HRS
 	-----------------------
-	DOE, S.
-	DOE, S.
+	GLOVER, S.
+	WEAVER, S.
 	
-	DOE, K. (#66) WAS THE LAST PCO ON THESE OT ASSIGNMENTS.
-	DOE, A. (#67) IS THE FIRST ELIGIBLE FOR THE NEXT OT ASSIGNMENTS.
+	KING, K. (#66) WAS THE LAST PCO ON THESE OT ASSIGNMENTS.
+	WILLIAMSON, A. (#67) IS THE FIRST ELIGIBLE FOR THE NEXT OT ASSIGNMENTS.
 
 DIRECTORIES
 --------------------------

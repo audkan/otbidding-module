@@ -1,10 +1,8 @@
-Sustainable Streets Division - Enforcement (SSDE) 
+## Overtime Bids and Assignment Utility
+**for San Francisco Municipal Transportation Agency (SFMTA) Sustainable Streets Division Enforcement (SSDE)**
 
-Overtime Bids and Assignment
-
-==========================
 This is a simple Python (2.7.16) application intended to provide SSDE business 
-automation opportunities for assigning Parking Control Officers (PCO) and SSDE Supervisors (SUP) overtime work.
+automation opportunities for assigning overtime work Parking Control Officers (PCO) and SSDE Supervisors (SUP).
 
 FEATURES
 --------------------------

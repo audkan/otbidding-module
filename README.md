@@ -4,15 +4,15 @@
 This is a simple Python (2.7.16) application intended to provide SSDE business 
 automation opportunities for assigning overtime work Parking Control Officers (PCO) and SSDE Supervisors (SUP).
 
-FEATURES
+Features
 --------------------------
-MAIN.PY
-calls init.py and func.py and runs the main functionality of the application. 
+**main.py**
+calls **init.py** and **func.py** and runs the main functionality of the application. 
 Generates two output files: 1) OT assignments in the order of assignment, 
 showing all details within a row and 2) OT assignments grouped by event date and
 name, showing only employee names assigned to each work
 
-INIT.PY
+**init.py**
 takes all the input files and initialzes all corresponding 
 data structures and objects to begin the assignment process. Init.py loads the
 employee, work, and existing work data into three ordered dictionaries of 
@@ -20,7 +20,7 @@ Employee(), Work() and ExistingWork() objects, respectively. It also creates
 a list of employee bids, allows additional padding to employee count, and 
 generates a new seniority rotation.
 
-FUNC.PY
+**func.py**
 holds a variety of functions used by main.py and init.py. 
 The functionality held in this module includes: 1) rotating the seniority list, 
 2) adding additional padding to employee count, 3) validating input for 
@@ -28,9 +28,9 @@ seniority rotation start and padding amount, 4) checking existing work and
 2.5hr time overlap, 5) assigning employees through regular passes and inverse, 
 and 6) grouping the final assignments for formatted output.
 
-EXAMPLES
+Examples
 --------------------------
-Running main.py (with value and range error handling):
+Running **main.py** (with value and range error handling):
 
 	Enter SEN # to begin next rotation: 0
 	Values between 1-318 only.
@@ -100,7 +100,7 @@ Formatted output will appear as follows:
 	KING, K. (#66) WAS THE LAST PCO ON THESE OT ASSIGNMENTS.
 	WILLIAMSON, A. (#67) IS THE FIRST ELIGIBLE FOR THE NEXT OT ASSIGNMENTS.
 
-DIRECTORIES
+Directories
 --------------------------
 - Do not modify files inside path\PyMod\root\employee unless necessary (i.e. to 
 add/remove employes or update existing work). For each OT Assignment, replace
@@ -113,10 +113,11 @@ as well.
 - To test further SUP or PCO OT assignments, replace existing files in
 path\PyMod\root\input with SUP Test Data or PCO Test Data.
 
-INPUT
+Input
 --------------------------
 Input must be tab-delimited text files that must be formated as shown in "Input Template.xlsx". The applcation only supports the following input text files names: "OTWork.txt", "Bids.txt", "Employees.txt", and "ExistingWork.txt"
 
-RUNNING THE APPLICATION
+Running the Application
 --------------------------
-Open Python (2.7.16) IDLE Shell and select File > Open > path\PyMod\root\main.py. Once the main.py file is open, select Run > Run Module or F5.
+Open Python (2.7.16) IDLE Shell and select File > Open > path\PyMod\root\main.py. 
+Once the main.py file is open, select Run > Run Module or F5.
